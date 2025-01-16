@@ -8,7 +8,7 @@ class Router {
 
     getRoute(path = window.location.pathname, routes = this.routes) {
         for (const route in routes) {
-            const regex = new RegExp(`^${route.replace(/:\w+/g, "\\w+")}$`);
+            const regex = new RegExp(`^${route.replace(/:\w+/g, "[^/]+")}$`);
             if (regex.test(path)) {
                 const routeObj = routes[route];
                 const params = this.extractParams(route, path);
@@ -17,6 +17,9 @@ class Router {
                     const childMatch = this.getRoute(path, routeObj.children);
                     if (childMatch) return childMatch;
                 }
+
+                console.log('[Router] Checking route:', route, 'against path:', path);
+                console.log('[Router] Extracted params:', params);
 
                 return { route, params, routeObj };
             }

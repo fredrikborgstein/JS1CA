@@ -1,3 +1,5 @@
+import router from '../main.js';
+
 const HomePage = () => {
     return {
         render: () => `
@@ -108,19 +110,6 @@ const HomePage = () => {
               "bestsellers-cards-container"
             );
 
-            const productBtns = document.getElementsByClassName("card-text");
-            for (const btn of productBtns) {
-                btn.addEventListener("click", (e) => {
-                    e.preventDefault();
-                    const productId = e.target.dataset.id;
-
-                    if (productId) {
-                        window.location.href = `/productpage?id=${productId}`;
-                    } else {
-                    }
-                });
-            }
-
             async function getAllProducts() {
                 const cacheKey = "productsCache";
                 const cacheExpiration = 60 * 60 * 1000;
@@ -166,6 +155,19 @@ const HomePage = () => {
                 const bestSellers = products.bestSellers;
                 createHomePageProductCards(newReleases, "releases");
                 createHomePageProductCards(bestSellers, "bestsellers");
+
+                const productBtns = document.getElementsByClassName("card-text");
+                for (const btn of productBtns) {
+                    btn.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        const productId = e.target.dataset.id;
+
+                        if (productId) {
+                            // Use the Router instance to navigate
+                            router.navigate(`/productpage/${productId}`);
+                        }
+                    });
+                }
             }
 
             function createHomePageProductCards (products, element)  {
