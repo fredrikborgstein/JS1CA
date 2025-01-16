@@ -3,7 +3,7 @@ export default function Header() {
         <div id="logo-section">
             <a href="/" data-route>
                 <img
-                    src="https:/utfs.io/f/CPkGyyZpEykHSrBDaTg1MiK5PmvN07cb3g9ZTLJr4zIEFWBs"
+                    src="../assets/images/GameHubLogo.png"
                     alt="Gamehub logo"
                     id="site-logo"
                 />
