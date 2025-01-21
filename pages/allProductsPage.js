@@ -37,6 +37,14 @@ export default function AllProductsPage() {
           <a class="btn" href="#" id="clear-filter">Clear Filter</a>
         </div>
       </section>
+      <style>
+        #product-grid {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 20px auto;
+            justify-content: center;
+        }
+      </style>
       <section id="product-grid">
       </section>
     </div>
@@ -47,21 +55,34 @@ export default function AllProductsPage() {
             const sortBy = document.getElementById("sortby");
             const searchBox = document.getElementById("search");
             const productGrid = document.getElementById("product-grid");
-            const searchInput = document.getElementById("search");
             const clearFilterBtn = document.getElementById("clear-filter");
             let products = [];
             let filteredProducts = [];
             const cacheKey = "productsCache";
             const cacheExpiration = 60 * 60 * 1000;
 
+            async function init() {
+                try {
+                    products = await getAllProducts();
+                    if (!Array.isArray(products)) {
+                        throw new Error("Products is not an array");
+                    }
+                    filteredProducts = [...products];
+                    processProducts(products);
+                    populateGenreDropDown(products);
+                } catch (error) {
+                    console.error("Error initializing products:", error);
+                }
+            }
+
             genreFilter.addEventListener("change", (e) => {
                 e.preventDefault();
                 const selectedGenre = e.target.value;
 
                 if (selectedGenre === "All") {
-                    filteredProducts = [...this.products];
+                    filteredProducts = [...products];
                 } else {
-                    filteredProducts = this.products.filter(
+                    filteredProducts = products.filter(
                       product => product.genre === selectedGenre
                     );
                 }
@@ -74,9 +95,9 @@ export default function AllProductsPage() {
                 sortProducts(e.target.value, filteredProducts);
             });
 
-            searchInput.addEventListener("input", (e) => {
+            searchBox.addEventListener("input", (e) => {
                 const query = e.target.value.toLowerCase();
-                showDropdownSuggestions(query, this.filteredProducts);
+                showDropdownSuggestions(query, filteredProducts);
             });
 
             clearFilterBtn.addEventListener("click", (e) => {
@@ -88,38 +109,31 @@ export default function AllProductsPage() {
                 try {
                     const cachedData = localStorage.getItem(cacheKey);
                     const cachedTimestamp = localStorage.getItem(`${cacheKey}-timestamp`);
+                    const now = Date.now();
 
-                    if (cachedData && cachedTimestamp) {
-                        const now = Date.now();
-                        if (now - parseInt(cachedTimestamp, 10) < cacheExpiration) {
-                            const cachedObject = JSON.parse(cachedData);
-                            let products = cachedObject.data;
-                            if (Array.isArray(products)) {
-                                products = products;
-                                filteredProducts = [...products];
-                                sortProducts("name", filteredProducts);
-                                populateGenreDropDown(products);
-                                return;
-                            }
+                    if (cachedData && cachedTimestamp && now - parseInt(cachedTimestamp, 10) < cacheExpiration) {
+                        const cachedObject = JSON.parse(cachedData);
+                        if (Array.isArray(cachedObject.data)) {
+                            return cachedObject.data;
+                        } else {
+                            throw new Error("Cached data is invalid");
                         }
                     }
 
                     const response = await fetch(`${baseApiUrl}gamehub`);
                     if (!response.ok) throw new Error("Failed to fetch products");
-                    const data = await response.json();
 
-                    let products = data.data;
-                    if (Array.isArray(products)) {
+                    const data = await response.json();
+                    if (Array.isArray(data.data)) {
                         localStorage.setItem(cacheKey, JSON.stringify(data));
-                        localStorage.setItem(`${cacheKey}-timestamp`, Date.now().toString());
-                        products = products;
-                        filteredProducts = [...products];
-                        sortProducts("name", filteredProducts);
-                        populateGenreDropDown(products);
+                        localStorage.setItem(`${cacheKey}-timestamp`, now.toString());
+                        return data.data;
                     } else {
-                        throw new Error("Invalid product data");
+                        throw new Error("Fetched data is invalid");
                     }
                 } catch (error) {
+                    console.error("Error fetching products:", error);
+                    return [];
                 }
             }
 
@@ -228,7 +242,6 @@ export default function AllProductsPage() {
                         const productId = e.target.dataset.id;
 
                         if (productId) {
-                            // Use the Router instance to navigate
                             router.navigate(`/productpage/${productId}`);
                         }
                     });
@@ -244,6 +257,7 @@ export default function AllProductsPage() {
                     dropdown.style.backgroundColor = "#fff";
                     dropdown.style.border = "1px solid #ccc";
                     dropdown.style.width = "200px";
+                    dropdown.style.color = "black";
                     document.getElementById("search").parentElement.appendChild(dropdown);
                 }
                 dropdown.innerHTML = "";
@@ -286,7 +300,7 @@ export default function AllProductsPage() {
                 processProducts(products);
             }
 
-            void getAllProducts();
+            void init();
         },
         onDismount: () => {
 

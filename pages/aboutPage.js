@@ -32,7 +32,7 @@ export default function AboutPage () {
                 <div className="right-about-section">
                     <img
                         className="about-image"
-                        src="/Images/oppo-find-x5-pro-mCxk_ba7CJ8-unsplash.jpg"
+                        src="../assets/images/oppo-find-x5-pro-mCxk_ba7CJ8-unsplash.jpg"
                         alt="Father sits on sofa with sun, playing videogames, being cheerful"
                     />
                 </div>
@@ -43,7 +43,7 @@ export default function AboutPage () {
                 <div className="left-about-section">
                     <img
                         className="about-image"
-                        src="/Images/sean-do-EHLd2utEf68-unsplash.jpg"
+                        src="../assets/images/sean-do-EHLd2utEf68-unsplash.jpg"
                         alt="Boy sitting in front of computer screen with headset on, game on the screen and a dark room"
                     />
                 </div>
